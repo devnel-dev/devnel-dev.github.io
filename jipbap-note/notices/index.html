@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>집밥노트 공지사항</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #FFF9F5;
+      color: #352E26;
+      font-family: Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    }
+
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+
+    h1 {
+      margin: 0 0 24px;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .notice {
+      background: #FFFFFF;
+      border: 1px solid #F1E8E1;
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-bottom: 12px;
+    }
+
+    .title {
+      margin: 0 0 6px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .date {
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #8D8175;
+    }
+
+    .content {
+      font-size: 14.5px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    .empty,
+    .error {
+      padding: 48px 20px;
+      text-align: center;
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: #7A6C5C;
+      background: #FFFFFF;
+      border: 1px solid #F1E8E1;
+      border-radius: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <h1>공지사항</h1>
+    <div id="notice-list"></div>
+  </main>
+
+  <script>
+    const noticeList = document.getElementById('notice-list');
+
+    fetch('/notices.json')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('공지사항을 불러오지 못했습니다.');
+        }
+        return response.json();
+      })
+      .then(notices => {
+        if (!Array.isArray(notices) || notices.length === 0) {
+          noticeList.innerHTML =
+            '<div class="empty">현재 등록된 공지사항이 없습니다.</div>';
+          return;
+        }
+
+        notices
+          .sort((a, b) => b.date.localeCompare(a.date))
+          .forEach(notice => {
+            const article = document.createElement('article');
+            article.className = 'notice';
+
+            const title = document.createElement('div');
+            title.className = 'title';
+            title.textContent = notice.title;
+
+            const date = document.createElement('div');
+            date.className = 'date';
+            date.textContent = notice.date;
+
+            const content = document.createElement('div');
+            content.className = 'content';
+            content.textContent = notice.content;
+
+            article.appendChild(title);
+            article.appendChild(date);
+            article.appendChild(content);
+            noticeList.appendChild(article);
+          });
+      })
+      .catch(() => {
+        noticeList.innerHTML =
+          '<div class="error">공지사항을 불러올 수 없습니다.</div>';
+      });
+  </script>
+</body>
+</html>
